@@ -1,9 +1,12 @@
 const express = require("express");
+
 const knex = require("knex");
-
 const knexConfig = require("../knexfile.js");
-
 const db = knex(knexConfig.development);
+
+// import middleware
+const validateId = require("../middleware/validateId.js");
+const validateCar = require("../middleware/validateCar.js");
 
 const router = express.Router();
 
@@ -17,7 +20,7 @@ router.get("/", (req, res) => {
     });
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", validateId, (req, res) => {
   const { id } = req.params;
 
   db("cars")
@@ -31,7 +34,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
-router.post("/", (req, res) => {
+router.post("/", validateCar, (req, res) => {
   const newCar = req.body;
   db("cars")
     .insert(newCar)
@@ -47,7 +50,7 @@ router.post("/", (req, res) => {
     });
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", validateId, (req, res) => {
   const changes = req.body;
   db("cars")
     .where({ id: req.params.id })
@@ -60,7 +63,7 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", validateId, (req, res) => {
   db("cars")
     .where({ id: req.params.id })
     .del()
